@@ -19,6 +19,9 @@ Data files (written TAB spoken, same convention as measurements.tsv):
 - data/measurements/medical/numerators.tsv
 - data/measurements/medical/denominators.tsv
 
+This compound path is preferred in MeasureFst over string-file rows when both apply.
+Non-composable or special forms (e.g. vol %, /HPF) live in measurements_medical.tsv.
+
 Output is spoken (lower case in TSV) -> written abbreviation, e.g.
 millimole per liter -> mmol/L
 """

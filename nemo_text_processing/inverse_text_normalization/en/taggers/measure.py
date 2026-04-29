@@ -65,7 +65,6 @@ class MeasureFst(GraphFst):
         graph_unit = pynini.union(
             pynini.string_file(get_abs_path("data/measurements.tsv")),
             pynini.string_file(get_abs_path("data/measurements_medical.tsv")),
-            pynini.string_file(get_abs_path("data/measurements/medical/fixed_units.tsv")),
             # Standalone spoken numerators (e.g. millimoles -> mmol), not only compound "per" units.
             pynini.string_file(get_abs_path("data/measurements/medical/numerators.tsv")),
         ).optimize()
@@ -84,8 +83,15 @@ class MeasureFst(GraphFst):
         ).optimize()
         graph_unit_plural_core = pynini.union(graph_days_spoken_plural, graph_unit_plural_core).optimize()
 
-        graph_unit_singular = pynini.union(graph_unit_singular_core, medical_compound).optimize()
-        graph_unit_plural = pynini.union(graph_unit_plural_core, medical_compound).optimize()
+        # Prefer numerator+denominator compound (medical_measure) over string-file units when both match.
+        graph_unit_singular = pynini.union(
+            pynutil.add_weight(medical_compound, -0.0001),
+            graph_unit_singular_core,
+        ).optimize()
+        graph_unit_plural = pynini.union(
+            pynutil.add_weight(medical_compound, -0.0001),
+            graph_unit_plural_core,
+        ).optimize()
 
         optional_graph_negative = pynini.closure(
             pynutil.insert("negative: ") + pynini.cross(MINUS, "\"true\"") + delete_extra_space,

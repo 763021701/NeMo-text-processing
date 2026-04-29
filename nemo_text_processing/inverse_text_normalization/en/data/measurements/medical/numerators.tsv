@@ -1,12 +1,17 @@
 mmol	millimole
 mmol	millimoles
+mmol	milli mole
+mmol	milli moles
 nmol	nanomole
 nmol	nanomoles
+nmol	nano mole
+nmol	nano moles
 pmol	picomole
 pmol	picomoles
 μmol	micromole
 μmol	micromoles
 μmol	micro mole
+μmol	micro moles
 mol	mole
 μg	microgram
 μg	micrograms
@@ -14,6 +19,26 @@ mol	mole
 ug	microgram
 mg	milligram
 mg	milligrams
+ng	nanogram
+ng	nanograms
+pg	picogram
+pg	picograms
+mm	millimeter
+mm	millimeters
+m²	square meter
+m²	square meters
+m²	square metre
+m²	square metres
+cm²	square centimeter
+cm²	square centimeters
+cm²	square centimetre
+cm²	square centimetres
+mm²	square millimeter
+mm²	square millimeters
+mm²	square millimetre
+mm²	square millimetres
+mL	milliliter
+mL	milliliters
 g	gram
 g	grams
 kg	kilogram
@@ -21,6 +46,7 @@ kg	kilograms
 IU	international unit
 IU	international units
 IU	i u
+IU	i u s
 mIU	milli international unit
 mIU	milli international units
 mIU	m i u
@@ -55,7 +81,11 @@ mEq	milliequivalents
 Eq	equivalent
 Eq	equivalents
 mAU	milli absorbance unit
+mAU	milli absorbance units
 AU	absorbance unit
+mS	milli siemens
+μS	micro siemens
+S	siemens
 mOsm	milliosmole
 mOsm	milliosmoles
 Osm	osmole
