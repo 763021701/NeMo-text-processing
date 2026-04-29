@@ -122,6 +122,8 @@ Two kilo watt hours~2 kWh
 One point o o o o two eight cubic deci meters~1.000028 dm³
 Seven point five peta bytes~7.5 pb
 Three hours~3 h
+Three days~3 days
+One day~1 day
 One milli volt~1 mv
 Two cubic meters~2 m³
 Ninety grams~90 g

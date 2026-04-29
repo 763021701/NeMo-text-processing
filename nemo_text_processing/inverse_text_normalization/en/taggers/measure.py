@@ -76,6 +76,13 @@ class MeasureFst(GraphFst):
 
         graph_unit_plural_core = get_singulars(graph_unit_singular_core).optimize()
         graph_unit_plural_core = pynini.compose(casing_graph, graph_unit_plural_core).optimize()
+        # After PLURAL_TO_SINGULAR, "days" becomes "day", which ties with singular "day" -> units "day".
+        # Prefer written "days" when the spoken unit is plural "days" (e.g. three days -> 3 days).
+        graph_days_spoken_plural = pynini.compose(
+            casing_graph,
+            pynutil.add_weight(pynini.cross("days", "days"), -0.0001),
+        ).optimize()
+        graph_unit_plural_core = pynini.union(graph_days_spoken_plural, graph_unit_plural_core).optimize()
 
         graph_unit_singular = pynini.union(graph_unit_singular_core, medical_compound).optimize()
         graph_unit_plural = pynini.union(graph_unit_plural_core, medical_compound).optimize()
