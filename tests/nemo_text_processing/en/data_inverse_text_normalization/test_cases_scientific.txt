@@ -1,0 +1,8 @@
+one point two three times ten to the minus five~1.23 x 10^-5
+one times ten to the five~1 x 10^5
+minus one point two three times ten to the power of five~-1.23 x 10^5
+zero point five times ten raised to the eight~0.5 x 10^8
+two hundred fifty four times ten to the minus three~254 x 10^-3
+ten point zero one times ten to the power of minus four~10.01 x 10^-4
+three times ten raised to the zero~3 x 10^0
+minus twelve times ten to the power of minus one~-12 x 10^-1
