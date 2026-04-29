@@ -15,6 +15,8 @@
 import pynini
 from pynini.lib import pynutil
 
+from typing import Optional
+
 from nemo_text_processing.text_normalization.en.graph_utils import (
     INPUT_CASED,
     INPUT_LOWER_CASED,
@@ -31,9 +33,21 @@ class ScientificFst(GraphFst):
     Finite state transducer for classifying scientific notation.
         e.g. one point two three times ten to the minus five ->
             scientific { mantissa: "1.23" exponent: "-5" }
+
+    Exponent may be cardinal (``five``) or ordinal (``fifth``) when ``ordinal`` is provided.
+
+    Attributes:
+        final_graph: inner fields ``mantissa`` / ``exponent`` without the outer ``scientific { }``
+            wrapper, for composition inside ``measure``.
     """
 
-    def __init__(self, cardinal: GraphFst, decimal: GraphFst, input_case: str = INPUT_LOWER_CASED):
+    def __init__(
+        self,
+        cardinal: GraphFst,
+        decimal: GraphFst,
+        ordinal: Optional[GraphFst] = None,
+        input_case: str = INPUT_LOWER_CASED,
+    ):
         super().__init__(name="scientific", kind="classify")
 
         cardinal_graph = cardinal.graph_no_exception
@@ -58,12 +72,15 @@ class ScientificFst(GraphFst):
         )
 
         optional_exponent_sign = pynini.closure(pynini.cross(MINUS, "-") + delete_space, 0, 1)
-        exponent = pynutil.insert('exponent: "') + optional_exponent_sign + cardinal_graph + pynutil.insert('"')
+        exponent_value = cardinal_graph
+        if ordinal is not None:
+            exponent_value |= ordinal.graph
+        exponent = pynutil.insert('exponent: "') + optional_exponent_sign + exponent_value + pynutil.insert('"')
 
-        final_graph = mantissa + delete_extra_space + marker + delete_extra_space + exponent
+        inner = mantissa + delete_extra_space + marker + delete_extra_space + exponent
 
         if input_case == INPUT_CASED:
-            final_graph = capitalized_input_graph(final_graph)
+            inner = capitalized_input_graph(inner)
 
-        final_graph = self.add_tokens(final_graph)
-        self.fst = final_graph.optimize()
+        self.final_graph = inner.optimize()
+        self.fst = self.add_tokens(self.final_graph).optimize()

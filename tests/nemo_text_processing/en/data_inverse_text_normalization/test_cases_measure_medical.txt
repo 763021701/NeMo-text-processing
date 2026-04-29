@@ -1,0 +1,14 @@
+five millimoles per liter~5 mmol/L
+three international units per milliliter~3 IU/mL
+ten cells per microliter~10 cells/μL
+fourteen per high power field~14 /HPF
+one i u~1 IU
+four m i u per milliliter~4 mIU/mL
+six milliequivalents per liter~6 mEq/L
+eight grams per deciliter~8 g/dL
+twelve milliosmoles per kilogram of water~12 mOsm/kgH2O
+nine milliliters per minute~9 mL/min
+one times ten to the fifth millimoles per liter~1 x 10^5 mmol/L
+one point two times ten to the minus fifth international units per milliliter~1.2 x 10^-5 IU/mL
+three times ten to the power of six cells per microliter~3 x 10^6 cells/μL
+nine times ten to the minus fifth millimoles~9 x 10^-5 mmol

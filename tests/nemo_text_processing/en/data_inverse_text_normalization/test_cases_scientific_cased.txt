@@ -3,3 +3,4 @@ One times ten to the five~1 x 10^5
 Minus one point two three times ten to the power of five~-1.23 x 10^5
 Zero point five times ten raised to the eight~0.5 x 10^8
 Two hundred fifty four times ten to the minus three~254 x 10^-3
+One times ten to the fifth~1 x 10^5

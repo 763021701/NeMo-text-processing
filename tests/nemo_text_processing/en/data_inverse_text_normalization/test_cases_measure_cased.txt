@@ -111,6 +111,7 @@ eight point five meters~8.5 m
 eight point five two percent~8.52 %
 eight point four four percent~8.44 %
 Two hundred meters~200 m
+One times ten to the fifth meters~1 x 10^5 m
 Fifty six point three per square kilometer~56.3 /km²
 Two hundred kilometers per hour~200 km/h
 Twenty eight kilograms force per square centimeter~28 kgf/cm²

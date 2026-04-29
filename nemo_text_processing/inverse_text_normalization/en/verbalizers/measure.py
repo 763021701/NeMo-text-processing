@@ -16,6 +16,7 @@
 import pynini
 from pynini.lib import pynutil
 
+from nemo_text_processing.inverse_text_normalization.en.verbalizers.scientific import ScientificFst as ScientificVerbalFst
 from nemo_text_processing.text_normalization.en.graph_utils import NEMO_CHAR, GraphFst, delete_space
 
 
@@ -27,9 +28,10 @@ class MeasureFst(GraphFst):
     Args:
         decimal: DecimalFst
         cardinal: CardinalFst
+        scientific: verbalizer :class:`ScientificFst` for ``measure { scientific { ... } units: ... }``.
     """
 
-    def __init__(self, decimal: GraphFst, cardinal: GraphFst):
+    def __init__(self, decimal: GraphFst, cardinal: GraphFst, scientific: GraphFst = None):
         super().__init__(name="measure", kind="verbalize")
         optional_sign = pynini.closure(pynini.cross("negative: \"true\"", "-"), 0, 1)
         unit = (
@@ -58,6 +60,8 @@ class MeasureFst(GraphFst):
             + delete_space
             + pynutil.delete("}")
         )
-        graph = (graph_cardinal | graph_decimal) + delete_space + pynutil.insert(" ") + unit
+        scientific_v = scientific if scientific is not None else ScientificVerbalFst()
+        graph_scientific = scientific_v.fst
+        graph = (graph_cardinal | graph_decimal | graph_scientific) + delete_space + pynutil.insert(" ") + unit
         delete_tokens = self.delete_tokens(graph)
         self.fst = delete_tokens.optimize()

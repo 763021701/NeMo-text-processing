@@ -1,0 +1,4 @@
+Five millimoles per liter~5 mmol/L
+Three international units per milliliter~3 IU/mL
+Ten cells per microliter~10 cells/μL
+One times ten to the fifth millimoles per liter~1 x 10^5 mmol/L

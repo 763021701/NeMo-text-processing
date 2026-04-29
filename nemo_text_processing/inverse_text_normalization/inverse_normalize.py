@@ -249,13 +249,18 @@ if __name__ == "__main__":
     print(f'Time to generate graph: {round(perf_counter() - start_time, 2)} sec')
 
     if args.input_string:
-        print(inverse_normalizer.inverse_normalize(args.input_string, verbose=args.verbose))
+        itn_start = perf_counter()
+        result = inverse_normalizer.inverse_normalize(args.input_string, verbose=args.verbose)
+        print(result)
+        print(f"Time for ITN (inverse_normalize): {round(perf_counter() - itn_start, 4)} sec")
     elif args.input_file:
         print("Loading data: " + args.input_file)
         data = load_file(args.input_file)
 
         print("- Data: " + str(len(data)) + " sentences")
+        itn_start = perf_counter()
         prediction = inverse_normalizer.inverse_normalize_list(data, verbose=args.verbose)
+        print(f"Time for ITN (inverse_normalize_list, {len(data)} items): {round(perf_counter() - itn_start, 4)} sec")
         if args.output_file:
             write_file(args.output_file, prediction)
             print(f"- Denormalized. Writing out to {args.output_file}")

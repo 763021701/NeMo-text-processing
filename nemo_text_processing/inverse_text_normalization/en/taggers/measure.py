@@ -30,6 +30,10 @@ from nemo_text_processing.text_normalization.en.graph_utils import (
     get_singulars,
 )
 
+from nemo_text_processing.inverse_text_normalization.en.taggers.medical_measure import (
+    build_medical_compound_spoken_to_written_fst,
+)
+
 
 class MeasureFst(GraphFst):
     """
@@ -39,10 +43,18 @@ class MeasureFst(GraphFst):
     Args:
         cardinal: CardinalFst
         decimal: DecimalFst
+        scientific: optional tagger :class:`ScientificFst` whose ``final_graph`` is composed for
+            scientific notation followed by a unit.
         input_case: accepting either "lower_cased" or "cased" input.
     """
 
-    def __init__(self, cardinal: GraphFst, decimal: GraphFst, input_case: str = INPUT_LOWER_CASED):
+    def __init__(
+        self,
+        cardinal: GraphFst,
+        decimal: GraphFst,
+        scientific: GraphFst = None,
+        input_case: str = INPUT_LOWER_CASED,
+    ):
         super().__init__(name="measure", kind="classify")
 
         cardinal_graph = cardinal.graph_no_exception
@@ -50,12 +62,23 @@ class MeasureFst(GraphFst):
         # accept capital letters in units
         casing_graph = pynini.closure(TO_LOWER | NEMO_SIGMA).optimize()
 
-        graph_unit = pynini.string_file(get_abs_path("data/measurements.tsv"))
-        graph_unit_singular = pynini.invert(graph_unit)  # singular -> abbr
-        graph_unit_singular = pynini.compose(casing_graph, graph_unit_singular).optimize()
+        graph_unit = pynini.union(
+            pynini.string_file(get_abs_path("data/measurements.tsv")),
+            pynini.string_file(get_abs_path("data/measurements_medical.tsv")),
+            pynini.string_file(get_abs_path("data/measurements/medical/fixed_units.tsv")),
+            # Standalone spoken numerators (e.g. millimoles -> mmol), not only compound "per" units.
+            pynini.string_file(get_abs_path("data/measurements/medical/numerators.tsv")),
+        ).optimize()
+        graph_unit_singular_core = pynini.compose(casing_graph, pynini.invert(graph_unit)).optimize()
 
-        graph_unit_plural = get_singulars(graph_unit_singular).optimize()  # plural -> abbr
-        graph_unit_plural = pynini.compose(casing_graph, graph_unit_plural).optimize()
+        medical_compound = build_medical_compound_spoken_to_written_fst()
+        medical_compound = pynini.compose(casing_graph, medical_compound).optimize()
+
+        graph_unit_plural_core = get_singulars(graph_unit_singular_core).optimize()
+        graph_unit_plural_core = pynini.compose(casing_graph, graph_unit_plural_core).optimize()
+
+        graph_unit_singular = pynini.union(graph_unit_singular_core, medical_compound).optimize()
+        graph_unit_plural = pynini.union(graph_unit_plural_core, medical_compound).optimize()
 
         optional_graph_negative = pynini.closure(
             pynutil.insert("negative: ") + pynini.cross(MINUS, "\"true\"") + delete_extra_space,
@@ -111,6 +134,16 @@ class MeasureFst(GraphFst):
             + delete_extra_space
             + unit_singular
         )
-        final_graph = subgraph_decimal | subgraph_cardinal
+        if scientific is not None:
+            subgraph_scientific = (
+                pynutil.insert("scientific { ")
+                + scientific.final_graph
+                + pynutil.insert(" }")
+                + delete_extra_space
+                + (unit_plural | unit_singular)
+            )
+            final_graph = subgraph_scientific | subgraph_decimal | subgraph_cardinal
+        else:
+            final_graph = subgraph_decimal | subgraph_cardinal
         final_graph = self.add_tokens(final_graph)
         self.fst = final_graph.optimize()
