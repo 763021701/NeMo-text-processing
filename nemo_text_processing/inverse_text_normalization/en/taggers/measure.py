@@ -99,24 +99,36 @@ class MeasureFst(GraphFst):
             1,
         )
 
-        unit_singular = convert_space(graph_unit_singular)
-        unit_plural = convert_space(graph_unit_plural)
+        unit_singular_inner = convert_space(graph_unit_singular)
+        unit_plural_inner = convert_space(graph_unit_plural)
         unit_misc = pynutil.insert("/") + pynutil.delete("per") + delete_space + convert_space(graph_unit_singular)
 
         one_graph = pynini.accep("one").optimize()
         if input_case == INPUT_CASED:
             one_graph |= pynini.accep("One").optimize()
 
-        unit_singular = (
-            pynutil.insert("units: \"")
-            + (unit_singular | unit_misc | pynutil.add_weight(unit_singular + delete_space + unit_misc, 0.01))
-            + pynutil.insert("\"")
+        unit_opts_singular = (
+            unit_singular_inner
+            | unit_misc
+            | pynutil.add_weight(unit_singular_inner + delete_space + unit_misc, 0.01)
         )
-        unit_plural = (
-            pynutil.insert("units: \"")
-            + (unit_plural | unit_misc | pynutil.add_weight(unit_plural + delete_space + unit_misc, 0.01))
-            + pynutil.insert("\"")
+        unit_opts_plural = (
+            unit_plural_inner
+            | unit_misc
+            | pynutil.add_weight(unit_plural_inner + delete_space + unit_misc, 0.01)
         )
+        if scientific is not None:
+            unit_opts_singular |= pynutil.add_weight(
+                unit_singular_inner + delete_space + scientific.per_ten_scale_suffix,
+                0.012,
+            )
+            unit_opts_plural |= pynutil.add_weight(
+                unit_plural_inner + delete_space + scientific.per_ten_scale_suffix,
+                0.012,
+            )
+
+        unit_singular = pynutil.insert("units: \"") + unit_opts_singular + pynutil.insert("\"")
+        unit_plural = pynutil.insert("units: \"") + unit_opts_plural + pynutil.insert("\"")
 
         # Let singular apply to values > 1 as they could be part of an adjective phrase (e.g. 14 foot tall building)
         subgraph_decimal = (

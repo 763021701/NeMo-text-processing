@@ -36,9 +36,15 @@ class ScientificFst(GraphFst):
 
     Exponent may be cardinal (``five``) or ordinal (``fifth``) when ``ordinal`` is provided.
 
+    Also builds ``per_ten_scale_suffix`` for measure units: spoken
+    ``per ten to the <exp>`` (optional tail ``platelets`` / ``cells``) -> written ``/10^<exp>`` tail,
+    used after a numerator or compound medical unit (e.g. ``nmol per ten to the ninth platelets``).
+
     Attributes:
         final_graph: inner fields ``mantissa`` / ``exponent`` without the outer ``scientific { }``
             wrapper, for composition inside ``measure``.
+        per_ten_scale_suffix: spoken ``per ten to the ...`` fragment -> ``/10^`` + digits + optional word;
+            composed in MeasureFst after a unit graph.
     """
 
     def __init__(
@@ -84,3 +90,49 @@ class ScientificFst(GraphFst):
 
         self.final_graph = inner.optimize()
         self.fst = self.add_tokens(self.final_graph).optimize()
+
+        # --- "per ten to the <exp>" scale suffix for measure (e.g. nmol/10^9 platelets) ---
+        to_the = (
+            pynutil.delete("to the power of")
+            | pynutil.delete("raised to the")
+            | pynutil.delete("to the")
+        )
+        exponent_for_scale = optional_exponent_sign + exponent_value
+        digit_th_to_digit = pynini.union(
+            pynini.cross("1st", "1"),
+            pynini.cross("2nd", "2"),
+            pynini.cross("3rd", "3"),
+            pynini.cross("4th", "4"),
+            pynini.cross("5th", "5"),
+            pynini.cross("6th", "6"),
+            pynini.cross("7th", "7"),
+            pynini.cross("8th", "8"),
+            pynini.cross("9th", "9"),
+            pynini.cross("10th", "10"),
+            pynini.cross("11th", "11"),
+            pynini.cross("12th", "12"),
+        ).optimize()
+        exponent_digits = (exponent_for_scale | digit_th_to_digit).optimize()
+        optional_tail_word = pynini.closure(
+            delete_space
+            + (
+                pynutil.delete("platelets") + pynutil.insert(" platelets")
+                | pynutil.delete("cells") + pynutil.insert(" cells")
+            ),
+            0,
+            1,
+        ).optimize()
+        per_ten_scale_suffix = (
+            pynutil.delete("per")
+            + delete_space
+            + pynutil.delete("ten")
+            + delete_space
+            + to_the
+            + delete_space
+            + pynutil.insert("/10^")
+            + exponent_digits
+            + optional_tail_word
+        ).optimize()
+        if input_case == INPUT_CASED:
+            per_ten_scale_suffix = capitalized_input_graph(per_ten_scale_suffix)
+        self.per_ten_scale_suffix = per_ten_scale_suffix.optimize()

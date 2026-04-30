@@ -17,7 +17,7 @@ import pynini
 from pynini.lib import pynutil
 
 from nemo_text_processing.inverse_text_normalization.en.verbalizers.scientific import ScientificFst as ScientificVerbalFst
-from nemo_text_processing.text_normalization.en.graph_utils import NEMO_CHAR, GraphFst, delete_space
+from nemo_text_processing.text_normalization.en.graph_utils import NEMO_NOT_QUOTE, GraphFst, delete_space
 
 
 class MeasureFst(GraphFst):
@@ -38,7 +38,7 @@ class MeasureFst(GraphFst):
             pynutil.delete("units:")
             + delete_space
             + pynutil.delete("\"")
-            + pynini.closure(NEMO_CHAR - " ", 1)
+            + pynini.closure(NEMO_NOT_QUOTE, 1)
             + pynutil.delete("\"")
             + delete_space
         )

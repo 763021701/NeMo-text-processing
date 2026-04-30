@@ -4,3 +4,5 @@ Ten cells per microliter~10 cells/μL
 One times ten to the fifth millimoles per liter~1 x 10^5 mmol/L
 Three milligrams per kilogram per day~3 mg/kg/day
 One milliliter per liter per minute~1 mL/L/min
+Two nanomoles per ten to the ninth platelets~2 nmol/10^9 platelets
+Twelve nanomoles per minute per ten to the sixth cells~12 nmol/min/10^6 cells
