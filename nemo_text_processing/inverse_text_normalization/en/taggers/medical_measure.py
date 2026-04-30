@@ -13,17 +13,23 @@
 # limitations under the License.
 
 """
-Medical unit spoken phrases composed as numerator + per + denominator.
+Medical unit spoken phrases composed as numerator + (per + denominator)+.
 
 Data files (written TAB spoken, same convention as measurements.tsv):
 - data/measurements/medical/numerators.tsv
 - data/measurements/medical/denominators.tsv
 
 This compound path is preferred in MeasureFst over string-file rows when both apply.
-Non-composable or special forms (e.g. vol %, /HPF) live in measurements_medical.tsv.
+Non-composable or special forms (e.g. vol %) live in measurements_medical.tsv.
 
-Output is spoken (lower case in TSV) -> written abbreviation, e.g.
-millimole per liter -> mmol/L
+v1 supports:
+- Binary:  A per B -> A/B (e.g. millimole per liter -> mmol/L).
+- Ternary: A per B per C -> A/B/C (e.g. milligrams per kilogram per day -> mg/kg/day).
+
+MeasureFst may also chain ``unit_singular + unit_misc`` (binary compound + a further
+``per`` + unit from the main graph); ternary here keeps three medical segments in one FST.
+
+Output is spoken (lower case in TSV) -> written abbreviation.
 """
 
 import pynini
@@ -49,13 +55,15 @@ def build_medical_compound_spoken_to_written_fst() -> "pynini.FstLike":
     num = pynini.invert(numerators).optimize()
     den = pynini.invert(denominators).optimize()
 
-    compound = (
-        num
-        + delete_space
+    per_slash_den = (
+        delete_space
         + pynutil.delete("per")
         + delete_space
         + pynutil.insert("/")
         + den
     ).optimize()
 
-    return compound.optimize()
+    compound_binary = (num + per_slash_den).optimize()
+    compound_ternary = (num + per_slash_den + per_slash_den).optimize()
+
+    return pynini.union(compound_binary, compound_ternary).optimize()
