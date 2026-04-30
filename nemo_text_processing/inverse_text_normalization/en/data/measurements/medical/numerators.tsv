@@ -66,7 +66,17 @@ mU	milli unit
 KU	kilo unit
 cells	cells
 WBC	white blood cell
+WBC	white blood cells
+WBC	white cell
+WBC	white cells
+WBC	leukocyte
+WBC	leukocytes
 RBC	red blood cell
+RBC	red blood cells
+RBC	erythrocyte
+RBC	erythrocytes
+RBC	red cell
+RBC	red cells
 CFU	colony forming unit
 PFU	plaque forming unit
 RU	relative unit
